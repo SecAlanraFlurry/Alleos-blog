@@ -1,0 +1,73 @@
+---
+---
+<div class="search-container w-full">
+  <input
+    type="text"
+    id="searchInput"
+    placeholder="Search..."
+    class="w-full px-3 py-1.5 text-sm rounded-lg bg-gray-100 border border-gray-200 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors duration-300"
+  />
+  <div id="searchResults" class="search-results mt-1 hidden bg-white rounded-lg shadow-lg">
+  </div>
+</div>
+
+<script>
+  import Fuse from 'fuse.js';
+
+  const posts = [
+    { title: 'Memahami Array di C++', url: '/blog/cpp-arrays' },
+    { title: 'Fungsi di C++: Panduan Lengkap', url: '/blog/cpp-functions' },
+    { title: 'Menguasai Perulangan di C++', url: '/blog/cpp-loops' }
+  ];
+
+  const fuse = new Fuse(posts, {
+    keys: ['title'],
+    threshold: 0.3
+  });
+
+  const searchInput = document.getElementById('searchInput');
+  const searchResults = document.getElementById('searchResults');
+
+  searchInput?.addEventListener('input', (e) => {
+    const target = e.target as HTMLInputElement;
+    const value = target.value;
+    
+    if (!value) {
+      searchResults?.classList.add('hidden');
+      if (searchResults) searchResults.innerHTML = '';
+      return;
+    }
+
+    const results = fuse.search(value);
+    if (searchResults) {
+      searchResults.innerHTML = results
+        .map(result => `
+          <a href="${result.item.url}" class="block px-3 py-1.5 text-sm hover:bg-gray-50 text-gray-700">
+            ${result.item.title}
+          </a>
+        `)
+        .join('');
+      
+      searchResults.classList.remove('hidden');
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (!searchInput?.contains(target) && !searchResults?.contains(target)) {
+      searchResults?.classList.add('hidden');
+    }
+  });
+</script>
+
+<style>
+.search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+</style>
